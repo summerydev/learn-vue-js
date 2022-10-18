@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      var div = document.querySelector("#app");
+      var viewModel = {};
+
+      (function () {
+        // 즉시 실행 함수
+        function init() {
+          //   Object.defineProperty(대상객체, 객체속성, {정의내용})
+          Object.defineProperty(viewModel, "str", {
+            get: function () {
+              console.log("접근");
+            },
+            set: function (newValue) {
+              console.log(newValue + " 할당");
+              render(newValue);
+            },
+          });
+        }
+
+        function render(value) {
+          div.innerHTML = value;
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>
