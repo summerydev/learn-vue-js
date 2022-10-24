@@ -9,6 +9,13 @@
 
 [Cracking Vue.js](https://joshua1988.github.io/vue-camp/)
 
+- [Vue.js 공식 문서](https://vuejs.org/v2/guide/)
+- [Vue.js 스타일 가이드](https://vuejs.org/v2/style-guide/)
+- [Vue.js Cookbook](https://vuejs.org/v2/cookbook/)
+- [Vuex 공식 문서](https://v3.vuex.vuejs.org/)
+- [VueRouter 공식 문서](https://v3.router.vuejs.org/)
+- [Vue CLI 공식 문서](https://cli.vuejs.org/)
+
 ---
 
 # 목차
@@ -487,3 +494,218 @@ var router = new VueRouter({
   </script>
 </body>
 ```
+
+# Vue cli
+
+- vue-cli 는 기본 vue 개발 환경을 설정해주는 도구
+
+```bash
+# check version
+node -v
+npm -v
+
+# vue cli download
+npm install @vue/cli
+
+# vue vli version check
+vue --version
+vue --V
+
+# create vue project
+vue create [project_name]
+
+# run server
+npm run serve
+
+# build
+npm run build
+```
+
+# `filename.vue` 구성
+
+```jsx
+<template>
+  <!-- html -->
+</template>
+
+<script>
+export default {
+  // javascript
+};
+</script>
+
+<style>
+/* css */
+</style>
+```
+
+# v-model
+
+[v-model의 동작 원리와 활용 방법](https://joshua1988.github.io/web-development/vuejs/v-model-usage/)
+
+## v-model 사용법
+
+```jsx
+<input v-model="inputText">
+```
+
+```jsx
+new Vue({
+  data: {
+    inputText: ''
+  }
+})
+```
+
+사용자 입력을 받는 UI요소에 `v-model` 속성을 사용하면 입력 값이 자동으로 뷰 데이터 속성에 연결된다.
+
+리액트의 경우 UI요소에 onChange 이벤트를 걸어 state를 업데이트 하는 방식을 사용했는데, `v-model` 로 데이터 속성에 바로 접근하는 방식이 편리한 것 같다.
+
+```jsx
+<template>
+  <form v-on:submit.prevent="submitForm">
+    <div>
+      <label for="username">id: </label>
+      <input id="username" type="text" v-model="username" />
+    </div>
+    <div>
+      <label for="password">password: </label>
+      <input id="password" type="password" v-model="password" />
+    </div>
+    <button type="submit">login</button>
+  </form>
+</template>
+
+<script>
+export default {
+  data: function () {
+    return {
+      username: "",
+      password: "",
+    };
+  },
+  methods: {
+    submitForm: function () {
+      console.log(this.username, this.password);
+    },
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+스크립트에 data와 input태그의 `v-model` 속성을 연결시키면 이런식으로 브라우저의 data속성에서 확인할 수 있다.
+
+![스크린샷 2022-10-24 오전 10.25.10.png](Vue%20js%20%E1%84%89%E1%85%B5%E1%84%8C%E1%85%A1%E1%86%A8%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5%20ef4fe25357a542ccb34d6cd53a9c2b31/%25E1%2584%2589%25E1%2585%25B3%25E1%2584%258F%25E1%2585%25B3%25E1%2584%2585%25E1%2585%25B5%25E1%2586%25AB%25E1%2584%2589%25E1%2585%25A3%25E1%2586%25BA_2022-10-24_%25E1%2584%258B%25E1%2585%25A9%25E1%2584%258C%25E1%2585%25A5%25E1%2586%25AB_10.25.10.png)
+
+`v-model` 은 `v-bind`와 `v-on`의 기능의 조합으로 동작한다.
+
+- `v-bind` : 뷰 인스턴스의 데이터 속성을 해당 HTML 요소에 연결할 때 사용
+- `v-on` : 해당 HTML 요소의 이벤트를 뷰 인스턴스의 로직과 연결할 때 사용
+
+기존 리액트에서 렌더링을 막는 `e.preventDefault()`또한 사용하지 않고, `form`태그에서 `v-on:submit` 뒤에 `.prevent`를 붙여 간단하게 동일한 동작을 구현할 수 있다.
+
+v-model 동작 시 한국어 입력은 한 글자씩 늦게 반응하는 단점이 존재한다. 직접 이벤트와 값을 조합해 바인딩하는 대신, 인풋 컴포넌트를 별도의 컴포넌트로 분리해 `v-model`로 처리할 수 있다.
+
+```jsx
+<!-- BaseInput.vue - 싱글 파일 컴포넌트 구조-->
+<template>
+  <input v-bind:value="value" v-on:input="updateInput">
+</template>
+
+<script>
+export default {
+  props: ['value'],
+  methods: {
+    updateInput: function(event) {
+      this.$emit('input', event.target.value);
+    }
+  }
+}
+</script>
+```
+
+```jsx
+<!-- App.vue - 싱글 파일 컴포넌트 구조 -->
+<template>
+  <div>
+    <base-input v-model="inputText"></base-input>
+  </div>
+</template>
+
+<script>
+import BaseInput from './BaseInput.vue';
+
+export default {
+  components: {
+    'base-input': BaseInput
+  },
+  data: function() {
+    return {
+      inputText: ''
+    }
+  }
+}
+</script>
+```
+
+## 사용자 입력 폼 완성하기
+
+- `form`태그에 `v-on` 속성을 달아 `submitForm` 동작과 연결
+- `input`태그에 `v-model` 속성을 달아 data에 연결
+- `submitForm` 메서드에서 `input`태그의 data를 받아 axios로 서버에 내용 전송
+
+```jsx
+<template>
+  <form v-on:submit.prevent="submitForm">
+    <div>
+      <label for="username">id: </label>
+      <input id="username" type="text" v-model="username" />
+    </div>
+    <div>
+      <label for="password">password: </label>
+      <input id="password" type="password" v-model="password" />
+    </div>
+    <button type="submit">login</button>
+  </form>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  data: function () {
+    return {
+      username: "",
+      password: "",
+    };
+  },
+  methods: {
+    submitForm: function () {
+      console.log(this.username, this.password);
+      const url = "https://jsonplaceholder.typicode.com/users";
+      const data = {
+        username: this.username,
+        password: this.password,
+      };
+      
+      axios
+        .post(url, data)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+---
